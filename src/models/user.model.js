@@ -17,12 +17,41 @@ import bcrypt from 'bcryptjs';
  */
 const userSchema = new mongoose.Schema(
   {
-    // Your schema fields here
+    name :{
+      type: String ,
+      required : true,
+      trim : true,
+      minlength:2,
+      maxlength:50,
+    },
+    email :{
+      type : String ,
+      required: true ,
+      trim : true,
+      unique : true ,
+      lowercase: true ,
+      trim : true ,
+      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email"]
+    },
+    password: { 
+      type : String ,
+      required : true ,
+      minlength :6,
+      select : false,// make the password hidden when during feteching 
+    },
+    role:{
+      type : String,
+       enum :["user","admin"],
+       default : "user",
+    }
   },
   {
-    // Schema options here
+  timestamps:true,
   }
 );
+ 
+
+// export default User;
 
 /**
  * TODO: Add pre-save hook to hash password
@@ -40,5 +69,18 @@ const userSchema = new mongoose.Schema(
  *   
  * });
  */
-
 // TODO: Create and export the User model
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    return next();
+  }
+  try {
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
+export const User = mongoose.model('User', userSchema);
+// export default User;

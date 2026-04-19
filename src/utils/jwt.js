@@ -27,10 +27,28 @@ import jwt from 'jsonwebtoken';
  * - JWT payload is NOT encrypted, only signed (it's base64 encoded and readable)
  * - Keep JWT_SECRET secure and never commit it to version control
  */
-export function signToken(payload) {
-  // Your code here
-}
+// export function signToken(payload) {
+//   const secret = process.env.JWT_SECRET;
+//   if(!secret){
+//     throw new Error("JWT_SECRET is not defined in environment variables");
 
+//   }
+//   const  expiresIn = process.env.JWT_EXPIRES_IN ||"24h" ; // mistake 2
+//   const token = jwt.sign(payload,secret, {expiresIn: expiresIn});
+//   return token ;
+
+
+export function signToken(payload) {
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret) {
+    throw new Error("JWT_SECRET is not defined");
+  }
+
+  return jwt.sign(payload, secret, {
+    expiresIn: process.env.JWT_EXPIRES_IN || "24h",
+  });
+}
 /**
  * TODO: Verifies and decodes a JWT token
  *
@@ -65,6 +83,21 @@ export function signToken(payload) {
  * - Check token expiration (verify does this automatically)
  * - Never skip verification for "performance" reasons
  */
+// export function verifyToken(token) {
+//   const secret = process.env.JWT_SECRET;
+
+//   if (!secret) {
+//     throw new Error("JWT_SECRET is not defined");
+//   }
+//  return jwt.verify(token, process.env.JWT_SECRET);
+  
+// }
 export function verifyToken(token) {
-  // Your code here
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret) {
+    throw new Error("JWT_SECRET is not defined");
+  }
+
+  return jwt.verify(token, secret);
 }
